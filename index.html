@@ -3,171 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Taha Live TV — Pakistan & India</title>
+  <title>Live TV - Pakistan & India</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: #0b1020;
-      color: #e8eefc;
-    }
-    header {
-      padding: 16px 20px;
-      background: #121a33;
-      border-bottom: 1px solid #23305a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0b1020; color: #e8eefc; }
+    header { padding: 16px 20px; background: #121a33; border-bottom: 1px solid #23305a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     header h1 { margin: 0; font-size: 20px; }
-    header .actions { display: flex; gap: 8px; }
-    button {
-      padding: 10px 14px;
-      border: 0;
-      border-radius: 10px;
-      background: #3b82f6;
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    button.secondary { background: #334155; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-
+    button { padding: 10px 14px; border: 0; border-radius: 10px; background: #3b82f6; color: white; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: 0.6; }
     .wrap { padding: 16px; max-width: 1200px; margin: auto; }
-    .layout {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 14px;
-    }
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-    }
-    .player-card, .list-card {
-      background: #121a33;
-      border: 1px solid #23305a;
-      border-radius: 14px;
-      overflow: hidden;
-    }
-    video {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: black;
-      display: block;
-    }
-    #status {
-      padding: 10px 12px;
-      font-size: 13px;
-      color: #9fb0d9;
-      min-height: 40px;
-    }
-    .list-head {
-      padding: 12px;
-      border-bottom: 1px solid #23305a;
-      display: flex;
-      gap: 8px;
-    }
-    .list-head input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 9px;
-      border: 1px solid #2d3b6b;
-      background: #111936;
-      color: white;
-      outline: none;
-    }
-    #channels {
-      max-height: 560px;
-      overflow: auto;
-      padding: 8px;
-    }
-    .group-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #7d90be;
-      padding: 10px 8px 6px;
-    }
-    .channel {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      margin-bottom: 6px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      background: #0f1730;
-      color: white;
-      cursor: pointer;
-      text-align: left;
-    }
+    .layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .card { background: #121a33; border: 1px solid #23305a; border-radius: 14px; overflow: hidden; }
+    video { width: 100%; aspect-ratio: 16/9; background: black; display: block; }
+    #status { padding: 10px 12px; font-size: 13px; color: #9fb0d9; min-height: 40px; }
+    .list-head { padding: 12px; border-bottom: 1px solid #23305a; display: flex; }
+    .list-head input { flex: 1; padding: 10px; border-radius: 9px; border: 1px solid #2d3b6b; background: #111936; color: white; outline: none; }
+    #channels { max-height: 560px; overflow: auto; padding: 8px; }
+    
+    /* کیٹیگری لیبل کے لیے */
+    .group-label { font-size: 13px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; color: #7d90be; padding: 12px 8px 6px; border-bottom: 1px solid #23305a; margin-bottom: 6px; }
+    
+    .channel { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 6px; border: 1px solid transparent; border-radius: 10px; background: #0f1730; color: white; cursor: pointer; text-align: left; }
     .channel:hover { border-color: #3b82f6; }
     .channel.active { border-color: #22c55e; background: #102a1c; }
-    .channel img {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
-      border-radius: 6px;
-      background: #000;
-      flex-shrink: 0;
-    }
+    .channel img { width: 38px; height: 38px; object-fit: contain; border-radius: 6px; background: #000; flex-shrink: 0; }
     .channel .meta { min-width: 0; flex: 1; }
-    .channel .name {
-      display: block;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .channel .sub {
-      display: block;
-      font-size: 12px;
-      color: #8fa3d1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .channel .name { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel .sub { display: block; font-size: 12px; color: #8fa3d1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .empty { padding: 20px; color: #8fa3d1; text-align: center; }
   </style>
 </head>
 <body>
   <header>
-    <h1>📺 Live TV — Pakistan & India</h1>
-    <div class="actions">
-      <button id="reloadBtn" class="secondary">Reload Channels</button>
-    </div>
+    <h1>📺 Live TV</h1>
+    <button id="reloadBtn">Reload Channels</button>
   </header>
 
   <div class="wrap">
     <div class="layout">
-      <div class="player-card">
+      <div class="card">
         <video id="video" controls playsinline></video>
         <div id="status">Channels load ho rahe hain...</div>
       </div>
-
-      <div class="list-card">
+      <div class="card">
         <div class="list-head">
-          <input id="search" placeholder="Channel search (naam ya group)..." />
+          <input id="search" placeholder="Search channel..." />
         </div>
-        <div id="channels">
-          <div class="empty">Loading...</div>
-        </div>
+        <div id="channels"><div class="empty">Loading...</div></div>
       </div>
     </div>
   </div>
 
   <script>
     const PROXY = '/api/proxy?url=';
-
-    const PLAYLISTS = [
-      { country: 'Pakistan', url: 'https://iptv-org.github.io/iptv/countries/pk.m3u' },
-      { country: 'India',    url: 'https://iptv-org.github.io/iptv/countries/in.m3u' }
-    ];
-
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
     const channelsEl = document.getElementById('channels');
@@ -178,149 +68,78 @@
     let channels = [];
     let activeUrl = '';
 
-    function setStatus(msg) {
-      statusEl.textContent = msg;
-    }
-
-    function proxyUrl(url) {
-      return PROXY + encodeURIComponent(url);
-    }
+    function proxyUrl(url) { return PROXY + encodeURIComponent(url); }
+    function setStatus(msg) { statusEl.textContent = msg; }
 
     function destroyPlayer() {
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
+      if (hls) { hls.destroy(); hls = null; }
       video.pause();
       video.removeAttribute('src');
       video.load();
     }
 
     function playUrl(url, name = '') {
+      if (!url) {
+        setStatus(`❌ ${name} ka stream link available nahi hai.`);
+        return;
+      }
+
       destroyPlayer();
       activeUrl = url;
-      setStatus(`Loading: ${name || url}`);
-
+      setStatus(`Loading: ${name}`);
       const src = proxyUrl(url);
 
       if (Hls.isSupported()) {
-        hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          maxBufferLength: 30
-        });
-
+        hls = new Hls({ enableWorker: true, lowLatencyMode: true });
         hls.loadSource(src);
         hls.attachMedia(video);
-
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play().catch(() => {});
-          setStatus(`▶️ Playing: ${name || 'Live stream'}`);
+          setStatus(`▶️ Playing: ${name}`);
         });
-
         hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            setStatus(`❌ Player error: ${data.type} / ${data.details}`);
-          }
+          if (data.fatal) setStatus(`❌ Error: ${data.type}`);
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = src;
         video.play().catch(() => {});
-        setStatus(`▶️ Playing: ${name || 'Live stream'}`);
-      } else if (/\.(mp4|webm|ogg)($|\?)/i.test(url)) {
-        video.src = src;
-        video.play().catch(() => {});
-        setStatus(`▶️ Playing: ${name || 'Video'}`);
-      } else {
-        setStatus('Ye browser HLS support nahi karta.');
+        setStatus(`▶️ Playing: ${name}`);
       }
-
       renderChannels();
-    }
-
-    function parseM3U(text, baseUrl) {
-      const lines = text.split(/\r?\n/);
-      const out = [];
-      let info = null;
-
-      for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-
-        if (line.startsWith('#EXTINF')) {
-          info = line;
-          continue;
-        }
-        if (line.startsWith('#')) continue;
-
-        if (info) {
-          const nameMatch = info.match(/,(.*)$/);
-          const name = nameMatch ? nameMatch[1].trim() : `Channel ${out.length + 1}`;
-
-          const attrs = {};
-          const attrRegex = /([\w-]+)="([^"]*)"/g;
-          let m;
-          while ((m = attrRegex.exec(info))) attrs[m[1]] = m[2];
-
-          let absUrl = line;
-          try { absUrl = new URL(line, baseUrl).href; } catch {}
-
-          out.push({
-            name,
-            url: absUrl,
-            logo: attrs['tvg-logo'] || '',
-            group: attrs['group-title'] || '',
-          });
-
-          info = null;
-        }
-      }
-
-      return out;
     }
 
     function renderChannels() {
       const q = searchInput.value.trim().toLowerCase();
-
-      const filtered = channels.filter(c =>
-        !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.group.toLowerCase().includes(q) ||
-        c.country.toLowerCase().includes(q)
-      );
-
+      const filtered = channels.filter(c => !q || c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+      
       channelsEl.innerHTML = '';
-
       if (!filtered.length) {
-        const empty = document.createElement('div');
-        empty.className = 'empty';
-        empty.textContent = 'Koi channel nahi mila.';
-        channelsEl.appendChild(empty);
+        channelsEl.innerHTML = '<div class="empty">Koi channel nahi mila.</div>';
         return;
       }
 
-      // Country ke hisab se group karein
+      // چینلز کو کیٹیگری کے حساب سے گروپ کریں
       const grouped = {};
-      filtered.forEach(c => {
-        if (!grouped[c.country]) grouped[c.country] = [];
-        grouped[c.country].push(c);
+      filtered.forEach(ch => {
+        const cat = ch.category ? ch.category.toUpperCase() : 'OTHER';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(ch);
       });
 
-      Object.keys(grouped).forEach(country => {
+      Object.keys(grouped).forEach(category => {
         const label = document.createElement('div');
         label.className = 'group-label';
-        label.textContent = `${country} (${grouped[country].length})`;
+        label.textContent = `${category} (${grouped[category].length})`;
         channelsEl.appendChild(label);
 
-        grouped[country].forEach(ch => {
+        grouped[category].forEach(ch => {
           const btn = document.createElement('button');
-          btn.className = 'channel' + (ch.url === activeUrl ? ' active' : '');
+          btn.className = 'channel' + (ch.streamUrl === activeUrl ? ' active' : '');
           btn.type = 'button';
-
+          
           if (ch.logo) {
             const img = document.createElement('img');
             img.src = ch.logo;
-            img.alt = '';
             img.loading = 'lazy';
             img.onerror = () => img.remove();
             btn.appendChild(img);
@@ -328,20 +147,10 @@
 
           const meta = document.createElement('div');
           meta.className = 'meta';
-
-          const name = document.createElement('span');
-          name.className = 'name';
-          name.textContent = ch.name;
-
-          const sub = document.createElement('span');
-          sub.className = 'sub';
-          sub.textContent = ch.group || 'Live TV';
-
-          meta.appendChild(name);
-          meta.appendChild(sub);
+          meta.innerHTML = `<span class="name">${ch.name}</span><span class="sub">${ch.category || 'Live TV'}</span>`;
           btn.appendChild(meta);
-
-          btn.onclick = () => playUrl(ch.url, ch.name);
+          
+          btn.onclick = () => playUrl(ch.streamUrl, ch.name);
           channelsEl.appendChild(btn);
         });
       });
@@ -349,58 +158,27 @@
 
     async function loadChannels() {
       reloadBtn.disabled = true;
-      setStatus('Pakistan aur India ke channels load ho rahe hain...');
+      setStatus('Channels fetch ho rahe hain...');
+      try {
+        const res = await fetch('/api/channels');
+        if (!res.ok) throw new Error('API Error');
+        
+        const data = await res.json();
+        channels = data.channels || [];
 
-      const seen = new Set();
-      const all = [];
+        if (!channels.length) throw new Error('No channels found');
 
-      for (const pl of PLAYLISTS) {
-        try {
-          const res = await fetch(proxyUrl(pl.url));
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-          const text = await res.text();
-          const parsed = parseM3U(text, pl.url);
-
-          parsed.forEach(ch => {
-            const key = ch.name.toLowerCase().trim() + '|' + ch.url;
-            if (seen.has(key)) return;
-            seen.add(key);
-            all.push({ ...ch, country: pl.country });
-          });
-        } catch (err) {
-          console.warn(`Playlist fail: ${pl.country}`, err);
-        }
-      }
-
-      if (!all.length) {
-        setStatus('Koi channel nahi mila. Proxy ya internet check karein.');
+        renderChannels();
+        setStatus(`✅ ${channels.length} channels mil gaye. Kisi bhi channel par click karein.`);
         reloadBtn.disabled = false;
-        return;
+      } catch (err) {
+        setStatus(`❌ Error: ${err.message}`);
+        reloadBtn.disabled = false;
       }
-
-      // Sort by country then name
-      all.sort((a, b) =>
-        a.country.localeCompare(b.country) || a.name.localeCompare(b.name)
-      );
-
-      channels = all;
-      renderChannels();
-
-      const pk = all.filter(c => c.country === 'Pakistan').length;
-      const inCh = all.filter(c => c.country === 'India').length;
-
-      setStatus(`✅ ${all.length} channels mile — Pakistan: ${pk}, India: ${inCh}`);
-      reloadBtn.disabled = false;
-
-      // Pehla channel auto-play
-      if (all[0]) playUrl(all[0].url, all[0].name);
     }
 
     searchInput.oninput = renderChannels;
     reloadBtn.onclick = loadChannels;
-
-    // Auto load on start
     loadChannels();
   </script>
 </body>
