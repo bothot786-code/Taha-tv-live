@@ -1,32 +1,19 @@
-module.exports = async function handler(req, res) {
-  // CORS ہیڈرز
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(204).end();
 
   const raw = req.query.url;
-  if (!raw) {
-    return res.status(400).send('url required');
-  }
+  if (!raw) return res.status(400).send('url required');
 
   const input = Array.isArray(raw) ? raw[0] : raw;
   let target;
-  try {
-    target = new URL(input);
-  } catch {
-    return res.status(400).send('invalid url');
-  }
-
-  if (!/^https?:$/.test(target.protocol)) {
-    return res.status(400).send('only http/https allowed');
-  }
+  try { target = new URL(input); } catch { return res.status(400).send('invalid url'); }
+  if (!/^https?:$/.test(target.protocol)) return res.status(400).send('only http/https allowed');
 
   try {
-    // براؤزر جیسا User-Agent بھیجیں تاکہ رسائی بلاک نہ ہو
     const upstream = await fetch(target.href, {
       redirect: 'follow',
       headers: {
@@ -36,9 +23,7 @@ module.exports = async function handler(req, res) {
       },
     });
 
-    if (!upstream.ok) {
-      return res.status(upstream.status).send(`Upstream error: ${upstream.status}`);
-    }
+    if (!upstream.ok) return res.status(upstream.status).send(`Upstream error: ${upstream.status}`);
 
     const contentType = upstream.headers.get('content-type') || '';
     const isM3U8 = /mpegurl|m3u8/i.test(contentType) || /\.m3u8($|\?)/i.test(target.href);
@@ -49,28 +34,21 @@ module.exports = async function handler(req, res) {
     if (isM3U8) {
       let text = await upstream.text();
       const base = target.href;
-      
-      // M3U8 فائل کے اندر موجود تمام لنکس کو پروکسی کے ذریعے موڑ دیں
       text = text.split(/\r?\n/).map(line => {
         const trimmed = line.trim();
-        if (!trimmed) return line;
-        if (trimmed.startsWith('#')) return line; // کمنٹ لائنز کو چھوڑ دیں
+        if (!trimmed || trimmed.startsWith('#')) return line;
         try {
           const abs = new URL(trimmed, base).href;
           return `/api/proxy?url=${encodeURIComponent(abs)}`;
         } catch { return line; }
       }).join('\n');
-
       res.setHeader('content-type', 'application/vnd.apple.mpegurl; charset=utf-8');
       return res.send(text);
     }
 
-    // دیگر فائلز (جیسے .ts ویڈیو سیگمنٹس) کے لیے
     res.setHeader('content-type', contentType || 'application/octet-stream');
-    const buffer = Buffer.from(await upstream.arrayBuffer());
-    return res.send(buffer);
-
+    return res.send(Buffer.from(await upstream.arrayBuffer()));
   } catch (err) {
     return res.status(502).send(`Proxy error: ${err.message}`);
   }
-};
+}
